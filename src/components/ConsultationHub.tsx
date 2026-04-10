@@ -16,7 +16,8 @@ import {
   MoreVertical,
   Phone,
   Video,
-  Info
+  Info,
+  ShoppingBag
 } from 'lucide-react';
 import { PatientData } from '../services/geminiService';
 
@@ -30,9 +31,14 @@ interface Message {
 interface ConsultationHubProps {
   patient: PatientData;
   viewMode?: 'patient' | 'doctor';
+  onOrderMedicine?: (search: string) => void;
 }
 
-export const ConsultationHub: React.FC<ConsultationHubProps> = ({ patient, viewMode: initialViewMode = 'patient' }) => {
+export const ConsultationHub: React.FC<ConsultationHubProps> = ({ 
+  patient, 
+  viewMode: initialViewMode = 'patient',
+  onOrderMedicine
+}) => {
   const [viewMode, setViewMode] = useState<'patient' | 'doctor'>(initialViewMode);
   const [step, setStep] = useState<'pre-consultation' | 'chat'>('pre-consultation');
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
@@ -243,6 +249,26 @@ export const ConsultationHub: React.FC<ConsultationHubProps> = ({ patient, viewM
 
         {/* Input Area */}
         <div className="p-8 border-t border-slate-100 space-y-6">
+          {/* Doctor Recommendations (Visible to Patient) */}
+          {viewMode === 'patient' && (
+            <div className="flex flex-wrap gap-3">
+              <button 
+                onClick={() => onOrderMedicine?.('Paracetamol')}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-100 transition-all shadow-sm"
+              >
+                <ShoppingBag className="w-3 h-3" />
+                Order Recommended: Paracetamol
+              </button>
+              <button 
+                onClick={() => onOrderMedicine?.('Ibuprofen')}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-100 transition-all shadow-sm"
+              >
+                <ShoppingBag className="w-3 h-3" />
+                Order Recommended: Ibuprofen
+              </button>
+            </div>
+          )}
+
           {/* Suggestions */}
           <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
             {(viewMode === 'patient' ? patientSuggestions : doctorSuggestions).map(s => (

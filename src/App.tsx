@@ -14,7 +14,9 @@ import {
   Brain,
   Heart,
   Building2,
-  MessageSquare
+  MessageSquare,
+  X,
+  ShoppingBag
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Dashboard } from './components/Dashboard';
@@ -24,6 +26,7 @@ import { MemoryGame } from './components/MemoryGame';
 import { DoctorDashboard } from './components/DoctorDashboard';
 import { HospitalPanel } from './components/HospitalPanel';
 import { ConsultationHub } from './components/ConsultationHub';
+import { EMed } from './components/EMed';
 import { geminiService, PatientData } from './services/geminiService';
 
 export interface Emergency {
@@ -177,10 +180,11 @@ const MOCK_PATIENTS: PatientData[] = [
 
 const MOCK_PATIENT = MOCK_PATIENTS[0];
 
-type Tab = 'patient' | 'doctor' | 'hospital' | 'game' | 'simulation' | 'consultation';
+type Tab = 'patient' | 'doctor' | 'hospital' | 'game' | 'simulation' | 'consultation' | 'emed';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('patient');
+  const [emedSearch, setEmedSearch] = useState('');
   const [patient, setPatient] = useState<PatientData>(() => {
     const saved = localStorage.getItem('diagnosis_patient');
     if (saved) {
@@ -192,6 +196,7 @@ export default function App() {
   });
   const [summary, setSummary] = useState('');
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const [isNewEntryModalOpen, setIsNewEntryModalOpen] = useState(false);
   const [emergencies, setEmergencies] = useState<Emergency[]>([]);
 
   const triggerEmergency = (type: string, severity: Emergency['severity']) => {
@@ -238,6 +243,11 @@ export default function App() {
     }));
   };
 
+  const openEMedWithSearch = (search: string) => {
+    setEmedSearch(search);
+    setActiveTab('emed');
+  };
+
   useEffect(() => {
     localStorage.setItem('diagnosis_patient', JSON.stringify(patient));
   }, [patient]);
@@ -255,18 +265,26 @@ export default function App() {
   }, [patient]);
 
   const handleGameComplete = (score: number, level: number, reactionTime: number) => {
-    setPatient(prev => ({
-      ...prev,
-      cognitive: {
-        ...prev.cognitive,
-        memoryScore: Math.min(100, prev.cognitive.memoryScore + (level / 2)),
-        reactionTime: (prev.cognitive.reactionTime + reactionTime) / 2,
-        gameHistory: [
-          ...prev.cognitive.gameHistory,
-          { date: new Date().toISOString().split('T')[0], score, level }
-        ]
-      }
-    }));
+    setPatient(prev => {
+      const newHistory = [
+        ...prev.cognitive.gameHistory,
+        { date: new Date().toISOString().split('T')[0], score, level }
+      ];
+      
+      // Calculate average of last 3 scores for the memoryScore
+      const lastThree = newHistory.slice(-3);
+      const avgScore = Math.round(lastThree.reduce((sum, h) => sum + h.score, 0) / lastThree.length);
+
+      return {
+        ...prev,
+        cognitive: {
+          ...prev.cognitive,
+          memoryScore: avgScore,
+          reactionTime: Math.round((prev.cognitive.reactionTime + reactionTime) / 2),
+          gameHistory: newHistory
+        }
+      };
+    });
   };
 
   return (
@@ -317,22 +335,30 @@ export default function App() {
           
           <div className="pt-4 pb-2 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Advanced</div>
           <NavItem 
+            icon={<ShoppingBag className="w-5 h-5" />} 
+            label="E-Med" 
+            active={activeTab === 'emed'} 
+            onClick={() => {
+              setEmedSearch('');
+              setActiveTab('emed');
+            }} 
+          />
+          <NavItem 
             icon={<PlayCircle className="w-5 h-5" />} 
             label="Simulation Lab" 
             active={activeTab === 'simulation'} 
             onClick={() => setActiveTab('simulation')} 
           />
-          <NavItem icon={<Settings className="w-5 h-5" />} label="Settings" />
         </nav>
 
         <div className="p-6 border-t border-slate-100">
           <div className="flex items-center gap-3 p-4 rounded-2xl hover:bg-slate-50 transition-all duration-300 cursor-pointer group border border-transparent hover:border-slate-100">
             <div className="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold shadow-inner">
-              DR
+              FS
             </div>
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-bold text-slate-900 truncate">Dr. Robert Reed</p>
-              <p className="text-xs text-slate-500 truncate font-medium">Chief Cardiologist</p>
+              <p className="text-sm font-bold text-slate-900 truncate">Farhan Sadique</p>
+              <p className="text-xs text-slate-500 truncate font-medium">Admin</p>
             </div>
             <LogOut className="w-4 h-4 text-slate-300 group-hover:text-danger transition-colors" />
           </div>
@@ -359,7 +385,10 @@ export default function App() {
               <Bell className="w-5 h-5 group-hover:rotate-12 transition-transform" />
               <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-danger rounded-full border-2 border-white animate-pulse"></span>
             </button>
-            <button className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-2xl text-sm font-bold hover:bg-blue-600 hover:shadow-xl hover:shadow-blue-200 transition-all duration-300 active:scale-95">
+            <button 
+              onClick={() => setIsNewEntryModalOpen(true)}
+              className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-2xl text-sm font-bold hover:bg-blue-600 hover:shadow-xl hover:shadow-blue-200 transition-all duration-300 active:scale-95"
+            >
               <Plus className="w-4 h-4" />
               New Entry
             </button>
@@ -383,6 +412,7 @@ export default function App() {
                    activeTab === 'hospital' ? 'Facility Operations' :
                    activeTab === 'game' ? 'Cognitive Training' :
                    activeTab === 'consultation' ? 'Smart Consultation' :
+                   activeTab === 'emed' ? 'E-Med' :
                    'Simulation Lab'}
                 </h2>
               </div>
@@ -413,6 +443,8 @@ export default function App() {
                     onUpdateMedStatus={updateMedicationStatus}
                     onAddMedReminder={addMedicationReminder}
                     onDeleteMedReminder={deleteMedicationReminder}
+                    onOrderMedicine={openEMedWithSearch}
+                    onTabChange={setActiveTab}
                   />
                 </motion.div>
               )}
@@ -456,7 +488,17 @@ export default function App() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                 >
-                  <ConsultationHub patient={patient} />
+                  <ConsultationHub patient={patient} onOrderMedicine={openEMedWithSearch} />
+                </motion.div>
+              )}
+              {activeTab === 'emed' && (
+                <motion.div
+                  key="emed"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                >
+                  <EMed initialSearch={emedSearch} />
                 </motion.div>
               )}
               {activeTab === 'simulation' && (
@@ -499,6 +541,87 @@ export default function App() {
                 <Plus className="w-5 h-5 rotate-45" />
               </button>
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* New Entry Modal */}
+        <AnimatePresence>
+          {isNewEntryModalOpen && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsNewEntryModalOpen(false)}
+                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 40 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 40 }}
+                className="bg-white w-full max-w-2xl rounded-[48px] p-12 relative z-10 shadow-2xl overflow-hidden"
+              >
+                <div className="absolute top-0 left-0 w-full h-2 bg-accent" />
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h2 className="text-3xl font-black text-slate-900">New Health Entry</h2>
+                    <p className="text-slate-500 font-bold">Record a new clinical observation or patient data.</p>
+                  </div>
+                  <button onClick={() => setIsNewEntryModalOpen(false)} className="p-3 hover:bg-slate-100 rounded-2xl transition-colors">
+                    <X className="w-6 h-6 text-slate-400" />
+                  </button>
+                </div>
+
+                <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); setIsNewEntryModalOpen(false); }}>
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Entry Type</label>
+                      <select className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-accent/10 focus:border-accent outline-none font-bold transition-all">
+                        <option>Clinical Note</option>
+                        <option>Vital Signs</option>
+                        <option>Lab Result</option>
+                        <option>Medication Change</option>
+                      </select>
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Priority</label>
+                      <div className="flex gap-3">
+                        {['Routine', 'Urgent', 'Critical'].map(p => (
+                          <button key={p} type="button" className={`flex-1 py-4 rounded-2xl text-xs font-black uppercase tracking-widest border-2 transition-all ${p === 'Routine' ? 'bg-accent/10 border-accent text-accent' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'}`}>
+                            {p}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Observations / Notes</label>
+                    <textarea 
+                      rows={4}
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-3xl focus:ring-4 focus:ring-accent/10 focus:border-accent outline-none font-medium transition-all"
+                      placeholder="Enter detailed clinical observations..."
+                    />
+                  </div>
+
+                  <div className="pt-4 flex gap-4">
+                    <button 
+                      type="button"
+                      onClick={() => setIsNewEntryModalOpen(false)}
+                      className="flex-1 py-5 bg-slate-100 text-slate-600 rounded-[24px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-95"
+                    >
+                      Discard
+                    </button>
+                    <button 
+                      type="submit"
+                      className="flex-1 py-5 bg-accent text-white rounded-[24px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl shadow-blue-100 active:scale-95"
+                    >
+                      Save Entry
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>
       </main>

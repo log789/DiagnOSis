@@ -33,6 +33,7 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ patients }) =>
   const [aiSummary, setAiSummary] = useState<{ summary: string; actions: string[] } | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [simulationMode, setSimulationMode] = useState(false);
+  const [isSimulating, setIsSimulating] = useState(false);
   const [simulatedAdherence, setSimulatedAdherence] = useState(selectedPatient.lifestyle.medicationAdherence);
   const [simulatedRisk, setSimulatedRisk] = useState(0);
 
@@ -67,6 +68,14 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ patients }) =>
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const runSimulation = () => {
+    setIsSimulating(true);
+    setSimulationMode(true);
+    setTimeout(() => {
+      setIsSimulating(false);
+    }, 1500);
   };
 
   return (
@@ -299,10 +308,11 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ patients }) =>
                     What-If Simulation
                   </h3>
                   <button 
-                    onClick={() => setSimulationMode(!simulationMode)}
-                    className={`p-3 rounded-xl transition-all active:scale-90 ${simulationMode ? 'bg-amber-400 text-slate-900 shadow-lg shadow-amber-400/20' : 'bg-white/10 text-white'}`}
+                    onClick={runSimulation}
+                    disabled={isSimulating}
+                    className={`p-3 rounded-xl transition-all active:scale-90 ${simulationMode ? 'bg-amber-400 text-slate-900 shadow-lg shadow-amber-400/20' : 'bg-white/10 text-white'} ${isSimulating ? 'animate-pulse' : ''}`}
                   >
-                    <Play className="w-4 h-4" />
+                    {isSimulating ? <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" /> : <Play className="w-4 h-4" />}
                   </button>
                 </div>
 
@@ -322,17 +332,26 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ patients }) =>
                     />
                   </div>
 
-                  <div className="p-8 bg-white/5 rounded-3xl border border-white/10 text-center backdrop-blur-sm">
+                  <div className="p-8 bg-white/5 rounded-3xl border border-white/10 text-center backdrop-blur-sm relative overflow-hidden">
+                    {isSimulating && (
+                      <motion.div 
+                        initial={{ x: '-100%' }}
+                        animate={{ x: '100%' }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
+                      />
+                    )}
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Projected Risk Impact</p>
                     <div className="flex items-center justify-center gap-4">
                       <div className={`text-4xl font-black transition-colors duration-500 ${
+                        isSimulating ? 'text-slate-500' :
                         simulatedRisk > 50 ? 'text-rose-400' : simulatedRisk > 30 ? 'text-amber-400' : 'text-emerald-400'
                       }`}>
-                        {Math.round(simulatedRisk)}%
+                        {isSimulating ? '--' : `${Math.round(simulatedRisk)}%`}
                       </div>
                       <ArrowRight className="w-5 h-5 text-slate-600" />
                       <div className="text-xs font-black uppercase tracking-widest text-slate-300">
-                        {simulatedRisk > 50 ? 'Critical' : simulatedRisk > 30 ? 'Moderate' : 'Stable'}
+                        {isSimulating ? 'Calculating...' : (simulatedRisk > 50 ? 'Critical' : simulatedRisk > 30 ? 'Moderate' : 'Stable')}
                       </div>
                     </div>
                   </div>

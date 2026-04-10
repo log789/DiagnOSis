@@ -10,7 +10,8 @@ import {
   Calendar, 
   ChevronRight,
   Sparkles,
-  Trash2
+  Trash2,
+  ShoppingBag
 } from 'lucide-react';
 import { MedicationReminder } from '../services/geminiService';
 
@@ -19,13 +20,15 @@ interface MedicineReminderProps {
   onUpdateStatus: (id: string, status: 'taken' | 'missed') => void;
   onAddReminder: (reminder: Omit<MedicationReminder, 'id' | 'status'>) => void;
   onDeleteReminder: (id: string) => void;
+  onOrderMedicine?: (search: string) => void;
 }
 
 export const MedicineReminder: React.FC<MedicineReminderProps> = ({ 
   schedule, 
   onUpdateStatus, 
   onAddReminder,
-  onDeleteReminder
+  onDeleteReminder,
+  onOrderMedicine
 }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newMed, setNewMed] = useState({ name: '', dosage: '', time: '', date: new Date().toISOString().split('T')[0] });
@@ -97,10 +100,19 @@ export const MedicineReminder: React.FC<MedicineReminderProps> = ({
           <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
             <Sparkles className="w-5 h-5 text-amber-500" />
           </div>
-          <p className="text-sm font-bold text-amber-800 leading-relaxed">
-            <span className="text-xs font-black uppercase tracking-widest block mb-1 opacity-60">AI Insight</span>
-            {insights}
-          </p>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-amber-800 leading-relaxed">
+              <span className="text-xs font-black uppercase tracking-widest block mb-1 opacity-60">AI Insight</span>
+              {insights}
+            </p>
+            <button 
+              onClick={() => onOrderMedicine?.(schedule.find(s => s.status === 'missed')?.name || '')}
+              className="mt-4 flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all shadow-sm"
+            >
+              <ShoppingBag className="w-3 h-3" />
+              Order Missing Medicine
+            </button>
+          </div>
         </motion.div>
       )}
 
