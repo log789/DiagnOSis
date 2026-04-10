@@ -272,15 +272,18 @@ export default function App() {
   return (
     <div className="flex h-screen bg-background font-sans text-slate-900 overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
-        <div className="p-6 flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+      <aside className="w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 z-20 shadow-sm">
+        <div className="p-8 flex items-center gap-3">
+          <div className="w-11 h-11 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl shadow-slate-200 rotate-3 hover:rotate-0 transition-transform duration-300">
             <Stethoscope className="w-6 h-6" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-800">DiagnOSis</h1>
+          <div>
+            <h1 className="text-xl font-extrabold tracking-tight text-slate-900">DiagnOSis</h1>
+            <p className="text-[10px] font-bold text-accent uppercase tracking-widest">Health OS</p>
+          </div>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1 mt-4">
+        <nav className="flex-1 px-6 space-y-2 mt-4">
           <NavItem 
             icon={<LayoutDashboard className="w-5 h-5" />} 
             label="Patient Dashboard" 
@@ -322,16 +325,16 @@ export default function App() {
           <NavItem icon={<Settings className="w-5 h-5" />} label="Settings" />
         </nav>
 
-        <div className="p-4 border-t border-slate-100">
-          <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-primary font-bold">
+        <div className="p-6 border-t border-slate-100">
+          <div className="flex items-center gap-3 p-4 rounded-2xl hover:bg-slate-50 transition-all duration-300 cursor-pointer group border border-transparent hover:border-slate-100">
+            <div className="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold shadow-inner">
               DR
             </div>
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-semibold text-slate-800 truncate">Dr. Robert Reed</p>
-              <p className="text-xs text-slate-500 truncate">Chief Cardiologist</p>
+              <p className="text-sm font-bold text-slate-900 truncate">Dr. Robert Reed</p>
+              <p className="text-xs text-slate-500 truncate font-medium">Chief Cardiologist</p>
             </div>
-            <LogOut className="w-4 h-4 text-slate-400 group-hover:text-danger transition-colors" />
+            <LogOut className="w-4 h-4 text-slate-300 group-hover:text-danger transition-colors" />
           </div>
         </div>
       </aside>
@@ -339,24 +342,24 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {/* Header */}
-        <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-4 flex-1 max-w-xl">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-10 flex items-center justify-between shrink-0 z-10">
+          <div className="flex items-center gap-4 flex-1 max-w-2xl">
+            <div className="relative w-full group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-accent transition-colors" />
               <input 
                 type="text" 
                 placeholder="Search records, patients, or facility data..." 
-                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-4 focus:ring-accent/10 focus:border-accent focus:bg-white outline-none transition-all duration-300"
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-colors relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full border-2 border-white"></span>
+          <div className="flex items-center gap-6">
+            <button className="p-3 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all relative group">
+              <Bell className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+              <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-danger rounded-full border-2 border-white animate-pulse"></span>
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all shadow-md shadow-blue-100">
+            <button className="flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-2xl text-sm font-bold hover:bg-blue-600 hover:shadow-xl hover:shadow-blue-200 transition-all duration-300 active:scale-95">
               <Plus className="w-4 h-4" />
               New Entry
             </button>
@@ -506,14 +509,17 @@ export default function App() {
 const NavItem = ({ icon, label, active, onClick }: { icon: React.ReactNode, label: string, active?: boolean, onClick?: () => void }) => (
   <button 
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+    className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-bold transition-all duration-300 group ${
       active 
-        ? 'bg-blue-50 text-primary' 
-        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+        ? 'bg-accent text-white shadow-lg shadow-blue-100' 
+        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
     }`}
   >
-    {icon}
+    <div className={`transition-transform duration-300 group-hover:scale-110 ${active ? 'text-white' : 'text-slate-400 group-hover:text-accent'}`}>
+      {icon}
+    </div>
     {label}
+    {active && <ChevronRight className="w-4 h-4 ml-auto opacity-50" />}
   </button>
 );
 

@@ -69,22 +69,22 @@ export const MedicineReminder: React.FC<MedicineReminderProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-primary">
-            <Pill className="w-5 h-5" />
+    <div className="bg-white rounded-[40px] p-10 shadow-card border border-slate-100">
+      <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center text-accent shadow-inner">
+            <Pill className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-800">Smart Medication</h3>
-            <p className="text-xs text-slate-500 font-medium">Daily schedule & adherence</p>
+            <h3 className="text-xl font-extrabold text-slate-900">Medication Hub</h3>
+            <p className="text-sm text-slate-500 font-medium">Daily schedule & adherence</p>
           </div>
         </div>
         <button 
           onClick={() => setIsAddModalOpen(true)}
-          className="p-2 bg-primary text-white rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-100"
+          className="p-3 bg-accent text-white rounded-2xl hover:bg-blue-600 transition-all shadow-xl shadow-blue-100 active:scale-95"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-6 h-6" />
         </button>
       </div>
 
@@ -92,77 +92,83 @@ export const MedicineReminder: React.FC<MedicineReminderProps> = ({
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 p-4 bg-amber-50 border border-amber-100 rounded-2xl flex items-start gap-3"
+          className="mb-10 p-6 bg-amber-50 border border-amber-100 rounded-3xl flex items-start gap-4 shadow-sm"
         >
-          <Sparkles className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-          <p className="text-xs font-medium text-amber-800 leading-relaxed">
-            <span className="font-bold">AI Insight:</span> {insights}
+          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+            <Sparkles className="w-5 h-5 text-amber-500" />
+          </div>
+          <p className="text-sm font-bold text-amber-800 leading-relaxed">
+            <span className="text-xs font-black uppercase tracking-widest block mb-1 opacity-60">AI Insight</span>
+            {insights}
           </p>
         </motion.div>
       )}
 
-      <div className="space-y-4 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-50">
+      <div className="space-y-6 relative before:absolute before:left-[23px] before:top-2 before:bottom-2 before:w-1 before:bg-slate-50">
         {sortedSchedule.length === 0 ? (
-          <div className="py-12 text-center">
-            <p className="text-sm text-slate-400 italic">No medications scheduled. Add one to start tracking.</p>
+          <div className="py-16 text-center">
+            <div className="w-16 h-16 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-200 mx-auto mb-4 shadow-inner">
+              <Pill className="w-8 h-8" />
+            </div>
+            <p className="text-sm text-slate-400 font-bold">No medications scheduled.</p>
           </div>
         ) : (
           sortedSchedule.map((item) => (
             <motion.div 
               layout
               key={item.id}
-              className="relative pl-12 group"
+              className="relative pl-16 group"
             >
-              <div className={`absolute left-0 top-0 w-10 h-10 rounded-full flex items-center justify-center border-4 border-white shadow-sm transition-colors ${
+              <div className={`absolute left-0 top-0 w-12 h-12 rounded-2xl flex items-center justify-center border-4 border-white shadow-md transition-all duration-500 ${
                 item.status === 'taken' ? 'bg-emerald-500 text-white' :
                 item.status === 'missed' ? 'bg-rose-500 text-white' :
                 'bg-slate-100 text-slate-400'
               }`}>
-                {item.status === 'taken' ? <CheckCircle2 className="w-5 h-5" /> : 
-                 item.status === 'missed' ? <XCircle className="w-5 h-5" /> : 
-                 <Clock className="w-5 h-5" />}
+                {item.status === 'taken' ? <CheckCircle2 className="w-6 h-6" /> : 
+                 item.status === 'missed' ? <XCircle className="w-6 h-6" /> : 
+                 <Clock className="w-6 h-6" />}
               </div>
               
-              <div className={`p-4 rounded-2xl border transition-all ${
-                item.status === 'taken' ? 'bg-emerald-50/30 border-emerald-100' :
-                item.status === 'missed' ? 'bg-rose-50/30 border-rose-100' :
-                'bg-white border-slate-100'
+              <div className={`p-6 rounded-[32px] border transition-all duration-300 ${
+                item.status === 'taken' ? 'bg-emerald-50/30 border-emerald-100 shadow-sm' :
+                item.status === 'missed' ? 'bg-rose-50/30 border-rose-100 shadow-sm' :
+                'bg-white border-slate-100 hover:shadow-md'
               }`}>
                 <div className="flex items-start justify-between">
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-2">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.time}</span>
-                      <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                      <span className="w-1.5 h-1.5 bg-slate-200 rounded-full" />
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.date}</span>
                     </div>
-                    <h4 className="text-sm font-bold text-slate-800">{item.name}</h4>
-                    <p className="text-xs text-slate-500 font-medium">{item.dosage}</p>
+                    <h4 className="text-base font-extrabold text-slate-900">{item.name}</h4>
+                    <p className="text-sm text-slate-500 font-bold">{item.dosage}</p>
                   </div>
                   
                   <div className="flex items-center gap-2">
                     {item.status === 'pending' && (
-                      <>
+                      <div className="flex items-center gap-2">
                         <button 
                           onClick={() => onUpdateStatus(item.id, 'taken')}
-                          className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                          className="p-3 text-emerald-600 bg-emerald-50 hover:bg-emerald-500 hover:text-white rounded-xl transition-all active:scale-90"
                           title="Mark as Taken"
                         >
                           <CheckCircle2 className="w-5 h-5" />
                         </button>
                         <button 
                           onClick={() => onUpdateStatus(item.id, 'missed')}
-                          className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                          className="p-3 text-rose-600 bg-rose-50 hover:bg-rose-500 hover:text-white rounded-xl transition-all active:scale-90"
                           title="Mark as Missed"
                         >
                           <XCircle className="w-5 h-5" />
                         </button>
-                      </>
+                      </div>
                     )}
                     <button 
                       onClick={() => onDeleteReminder(item.id)}
-                      className="p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                      className="p-3 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
@@ -175,76 +181,76 @@ export const MedicineReminder: React.FC<MedicineReminderProps> = ({
       {/* Add Modal */}
       <AnimatePresence>
         {isAddModalOpen && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsAddModalOpen(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-white w-full max-w-md rounded-[40px] p-8 relative z-10 shadow-2xl"
+              exit={{ opacity: 0, scale: 0.9, y: 40 }}
+              className="bg-white w-full max-w-lg rounded-[48px] p-12 relative z-10 shadow-2xl"
             >
-              <h2 className="text-2xl font-black text-slate-900 mb-6">New Reminder</h2>
-              <form onSubmit={handleAdd} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Medicine Name</label>
+              <h2 className="text-3xl font-black text-slate-900 mb-8">New Reminder</h2>
+              <form onSubmit={handleAdd} className="space-y-6">
+                <div className="space-y-3">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Medicine Name</label>
                   <input 
                     type="text" 
                     required
                     value={newMed.name}
                     onChange={e => setNewMed({...newMed, name: e.target.value})}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-accent/10 focus:border-accent focus:bg-white outline-none font-bold transition-all"
                     placeholder="e.g. Lisinopril"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Dosage</label>
+                <div className="space-y-3">
+                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Dosage</label>
                   <input 
                     type="text" 
                     value={newMed.dosage}
                     onChange={e => setNewMed({...newMed, dosage: e.target.value})}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none"
+                    className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-accent/10 focus:border-accent focus:bg-white outline-none font-bold transition-all"
                     placeholder="e.g. 10mg"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Date</label>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Date</label>
                     <input 
                       type="date" 
                       required
                       value={newMed.date}
                       onChange={e => setNewMed({...newMed, date: e.target.value})}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-accent/10 focus:border-accent focus:bg-white outline-none font-bold transition-all"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Time</label>
+                  <div className="space-y-3">
+                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Time</label>
                     <input 
                       type="time" 
                       required
                       value={newMed.time}
                       onChange={e => setNewMed({...newMed, time: e.target.value})}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none"
+                      className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-accent/10 focus:border-accent focus:bg-white outline-none font-bold transition-all"
                     />
                   </div>
                 </div>
-                <div className="pt-4 flex gap-3">
+                <div className="pt-6 flex gap-4">
                   <button 
                     type="button"
                     onClick={() => setIsAddModalOpen(false)}
-                    className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition-colors"
+                    className="flex-1 py-5 bg-slate-100 text-slate-600 rounded-[24px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-95"
                   >
                     Cancel
                   </button>
                   <button 
                     type="submit"
-                    className="flex-1 py-4 bg-primary text-white rounded-2xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-100"
+                    className="flex-1 py-5 bg-accent text-white rounded-[24px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl shadow-blue-100 active:scale-95"
                   >
                     Set Reminder
                   </button>
