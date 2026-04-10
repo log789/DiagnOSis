@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: /users/{userId}
+    // Fields: uid, email, displayName, role, createdAt
+    //
+    // Collection: /patients/{patientId}
+    // Fields: firstName, lastName, dateOfBirth, gender, bloodType, lastUpdated, summary, riskScore
+    //
+    // Collection: /patients/{patientId}/records/{recordId}
+    // Fields: type, timestamp, data, source
+    //
+    // Collection: /patients/{patientId}/simulations/{simId}
+    // Fields: scenarioName, parameters, prediction, confidence, createdAt, chartData
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "pifactory123@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isClinician() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'clinician']);
+    }
+
+    // User Profiles
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && request.resource.data.role == 'clinician' && isOwner(userId);
+      allow update: if (isOwner(userId) && request.resource.data.role == resource.data.role) || isAdmin();
+    }
+
+    // Patients
+    match /patients/{patientId} {
+      allow read: if isClinician();
+      allow create, update: if isClinician();
+      allow delete: if isAdmin();
+
+      // Subcollections
+      match /records/{recordId} {
+        allow read: if isClinician();
+        allow create, update: if isClinician();
+      }
+
+      match /simulations/{simId} {
+        allow read: if isClinician();
+        allow create, update: if isClinician();
+      }
+    }
+  }
+}

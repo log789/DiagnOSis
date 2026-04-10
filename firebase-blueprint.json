@@ -1,0 +1,77 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Clinician or staff profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "clinician", "viewer"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Patient": {
+      "title": "Patient Profile",
+      "description": "Core patient demographic and summary data",
+      "type": "object",
+      "properties": {
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "dateOfBirth": { "type": "string", "format": "date" },
+        "gender": { "type": "string" },
+        "bloodType": { "type": "string" },
+        "lastUpdated": { "type": "string", "format": "date-time" },
+        "summary": { "type": "string", "description": "AI generated summary of health status" },
+        "riskScore": { "type": "number", "description": "Current overall health risk score 0-100" }
+      },
+      "required": ["firstName", "lastName", "dateOfBirth"]
+    },
+    "HealthRecord": {
+      "title": "Health Record Entry",
+      "description": "Vitals, labs, or medication updates",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["vital", "lab", "medication", "note"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "data": { "type": "object", "description": "Structured data for the record type" },
+        "source": { "type": "string", "description": "EHR, Wearable, or Manual" }
+      },
+      "required": ["type", "timestamp", "data"]
+    },
+    "Simulation": {
+      "title": "Digital Twin Simulation",
+      "description": "A 'what-if' scenario prediction",
+      "type": "object",
+      "properties": {
+        "scenarioName": { "type": "string" },
+        "parameters": { "type": "object", "description": "Input changes for the simulation" },
+        "prediction": { "type": "string", "description": "AI generated outcome description" },
+        "confidence": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "chartData": { "type": "array", "description": "Projected trend lines" }
+      },
+      "required": ["scenarioName", "prediction", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/patients/{patientId}": {
+      "schema": "Patient",
+      "description": "Patient profiles"
+    },
+    "/patients/{patientId}/records/{recordId}": {
+      "schema": "HealthRecord",
+      "description": "Historical health data"
+    },
+    "/patients/{patientId}/simulations/{simId}": {
+      "schema": "Simulation",
+      "description": "Digital twin simulation results"
+    }
+  }
+}
