@@ -2,16 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { Activity, AlertCircle, Heart, Thermometer, Droplets, TrendingUp, User as UserIcon, Brain, Moon, Zap, Smile, ShieldAlert, Sparkles, Pill, Bed, Phone, Ambulance, Stethoscope, MapPin, X, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { PatientData } from '../services/geminiService';
+import { PatientData, MedicationReminder } from '../services/geminiService';
 import { Emergency } from '../App';
+import { MedicineReminder } from './MedicineReminder';
 
 interface DashboardProps {
   patient: PatientData;
   summary: string;
   onTriggerEmergency?: (type: string, severity: Emergency['severity']) => void;
+  onUpdateMedStatus: (id: string, status: 'taken' | 'missed') => void;
+  onAddMedReminder: (reminder: Omit<MedicationReminder, 'id' | 'status'>) => void;
+  onDeleteMedReminder: (id: string) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ patient, summary, onTriggerEmergency }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ 
+  patient, 
+  summary, 
+  onTriggerEmergency,
+  onUpdateMedStatus,
+  onAddMedReminder,
+  onDeleteMedReminder
+}) => {
   const [healthScore, setHealthScore] = useState(85);
   const [riskLevel, setRiskLevel] = useState<'Low' | 'Moderate' | 'High'>('Low');
   const [localInsights, setLocalInsights] = useState<string[]>([]);
@@ -93,6 +104,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ patient, summary, onTrigge
         </motion.div>
 
         <StatCard icon={<Heart className="text-danger" />} label="Heart Rate" value={`${patient.vitals.heartRate} bpm`} trend="+2%" />
+        <StatCard icon={<Brain className="text-primary" />} label="Cognitive Score" value={`${Math.round(patient.cognitive.memoryScore)}`} trend="Stable" />
         <StatCard icon={<Moon className="text-blue-500" />} label="Sleep" value={`${patient.lifestyle.sleepHours}h`} trend="-5%" />
         <StatCard icon={<Activity className="text-secondary" />} label="Activity" value={`${patient.lifestyle.steps} steps`} trend="+12%" />
       </div>
@@ -280,6 +292,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ patient, summary, onTrigge
               <MetricRow label="Activity" value={(patient.lifestyle.steps / 10000) * 100} />
             </div>
           </div>
+
+          {/* Medicine Reminder Component */}
+          <MedicineReminder 
+            schedule={patient.medicationSchedule}
+            onUpdateStatus={onUpdateMedStatus}
+            onAddReminder={onAddMedReminder}
+            onDeleteReminder={onDeleteMedReminder}
+          />
         </div>
       </div>
 

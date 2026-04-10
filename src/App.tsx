@@ -20,7 +20,7 @@ import { Dashboard } from './components/Dashboard';
 import { SimulationPanel } from './components/SimulationPanel';
 import { ChatAssistant } from './components/ChatAssistant';
 import { MemoryGame } from './components/MemoryGame';
-import { CaregiverDashboard } from './components/CaregiverDashboard';
+import { DoctorDashboard } from './components/DoctorDashboard';
 import { HospitalPanel } from './components/HospitalPanel';
 import { geminiService, PatientData } from './services/geminiService';
 
@@ -33,50 +33,147 @@ export interface Emergency {
   status: 'pending' | 'dispatched' | 'resolved';
 }
 
-const MOCK_PATIENT: PatientData = {
-  firstName: "Sarah",
-  lastName: "Chen",
-  dob: "1978-05-12",
-  gender: "Female",
-  vitals: {
-    heartRate: 72,
-    bloodPressure: "128/84",
-    oxygen: 98,
-    temperature: 98.6
+const MOCK_PATIENTS: PatientData[] = [
+  {
+    firstName: "Sarah",
+    lastName: "Chen",
+    dob: "1978-05-12",
+    gender: "Female",
+    vitals: {
+      heartRate: 72,
+      bloodPressure: "128/84",
+      oxygen: 98,
+      temperature: 98.6
+    },
+    lifestyle: {
+      sleepHours: 7.5,
+      steps: 8432,
+      nutritionScore: 85,
+      medicationAdherence: 98
+    },
+    cognitive: {
+      memoryScore: 82,
+      attentionScore: 78,
+      reactionTime: 450,
+      gameHistory: [
+        { date: '2026-04-01', score: 50, level: 5 },
+        { date: '2026-04-03', score: 70, level: 7 },
+        { date: '2026-04-05', score: 60, level: 6 },
+        { date: '2026-04-07', score: 80, level: 8 },
+      ]
+    },
+    emotional: {
+      mood: 'Calm',
+      stressLevel: 30,
+      journalEntries: [
+        { date: '2026-04-08', text: 'Felt a bit tired today but managed to walk in the park.', sentiment: 'Neutral' },
+        { date: '2026-04-09', text: 'Had a great lunch with my daughter. Feeling very happy.', sentiment: 'Positive' },
+      ]
+    },
+    medications: ["Lisinopril 10mg", "Metformin 500mg", "Atorvastatin 20mg"],
+    medicationSchedule: [
+      { id: '1', name: 'Lisinopril', dosage: '10mg', time: '08:00', status: 'taken', date: '2026-04-10' },
+      { id: '2', name: 'Metformin', dosage: '500mg', time: '12:00', status: 'pending', date: '2026-04-10' },
+      { id: '3', name: 'Atorvastatin', dosage: '20mg', time: '20:00', status: 'pending', date: '2026-04-10' },
+    ],
+    diagnoses: ["Type 2 Diabetes", "Hypertension", "Hyperlipidemia"],
+    labs: {
+      hba1c: 7.2,
+      ldl: 110,
+      creatinine: 0.9
+    }
   },
-  lifestyle: {
-    sleepHours: 7.5,
-    steps: 8432,
-    nutritionScore: 85,
-    medicationAdherence: 98
+  {
+    firstName: "James",
+    lastName: "Wilson",
+    dob: "1955-11-23",
+    gender: "Male",
+    vitals: {
+      heartRate: 85,
+      bloodPressure: "145/92",
+      oxygen: 96,
+      temperature: 98.4
+    },
+    lifestyle: {
+      sleepHours: 5.5,
+      steps: 2100,
+      nutritionScore: 60,
+      medicationAdherence: 65
+    },
+    cognitive: {
+      memoryScore: 65,
+      attentionScore: 60,
+      reactionTime: 680,
+      gameHistory: [
+        { date: '2026-04-01', score: 40, level: 4 },
+        { date: '2026-04-04', score: 45, level: 4 },
+      ]
+    },
+    emotional: {
+      mood: 'Anxious',
+      stressLevel: 75,
+      journalEntries: [
+        { date: '2026-04-08', text: 'Struggling to remember my keys today.', sentiment: 'Negative' },
+      ]
+    },
+    medications: ["Donepezil 5mg", "Amlodipine 5mg"],
+    medicationSchedule: [
+      { id: '4', name: 'Donepezil', dosage: '5mg', time: '08:00', status: 'missed', date: '2026-04-09' },
+      { id: '5', name: 'Donepezil', dosage: '5mg', time: '08:00', status: 'pending', date: '2026-04-10' },
+    ],
+    diagnoses: ["Early-stage Alzheimer's", "Hypertension"],
+    labs: {
+      hba1c: 6.1,
+      ldl: 135,
+      creatinine: 1.2
+    }
   },
-  cognitive: {
-    memoryScore: 82,
-    attentionScore: 78,
-    reactionTime: 450,
-    gameHistory: [
-      { date: '2026-04-01', score: 50, level: 5 },
-      { date: '2026-04-03', score: 70, level: 7 },
-      { date: '2026-04-05', score: 60, level: 6 },
-      { date: '2026-04-07', score: 80, level: 8 },
-    ]
-  },
-  emotional: {
-    mood: 'Calm',
-    stressLevel: 30,
-    journalEntries: [
-      { date: '2026-04-08', text: 'Felt a bit tired today but managed to walk in the park.', sentiment: 'Neutral' },
-      { date: '2026-04-09', text: 'Had a great lunch with my daughter. Feeling very happy.', sentiment: 'Positive' },
-    ]
-  },
-  medications: ["Lisinopril 10mg", "Metformin 500mg", "Atorvastatin 20mg"],
-  diagnoses: ["Type 2 Diabetes", "Hypertension", "Hyperlipidemia"],
-  labs: {
-    hba1c: 7.2,
-    ldl: 110,
-    creatinine: 0.9
+  {
+    firstName: "Elena",
+    lastName: "Rodriguez",
+    dob: "1992-02-28",
+    gender: "Female",
+    vitals: {
+      heartRate: 68,
+      bloodPressure: "115/75",
+      oxygen: 99,
+      temperature: 98.6
+    },
+    lifestyle: {
+      sleepHours: 8.2,
+      steps: 12500,
+      nutritionScore: 92,
+      medicationAdherence: 100
+    },
+    cognitive: {
+      memoryScore: 95,
+      attentionScore: 92,
+      reactionTime: 320,
+      gameHistory: [
+        { date: '2026-04-05', score: 95, level: 10 },
+      ]
+    },
+    emotional: {
+      mood: 'Energetic',
+      stressLevel: 15,
+      journalEntries: [
+        { date: '2026-04-09', text: 'Feeling great after my morning run!', sentiment: 'Positive' },
+      ]
+    },
+    medications: ["Multivitamin"],
+    medicationSchedule: [
+      { id: '6', name: 'Multivitamin', dosage: '1 tab', time: '09:00', status: 'taken', date: '2026-04-10' },
+    ],
+    diagnoses: ["Healthy"],
+    labs: {
+      hba1c: 5.2,
+      ldl: 85,
+      creatinine: 0.8
+    }
   }
-};
+];
+
+const MOCK_PATIENT = MOCK_PATIENTS[0];
 
 type Tab = 'patient' | 'doctor' | 'hospital' | 'game' | 'simulation';
 
@@ -84,7 +181,12 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('patient');
   const [patient, setPatient] = useState<PatientData>(() => {
     const saved = localStorage.getItem('diagnosis_patient');
-    return saved ? JSON.parse(saved) : MOCK_PATIENT;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Merge with MOCK_PATIENT to ensure all fields exist
+      return { ...MOCK_PATIENT, ...parsed };
+    }
+    return MOCK_PATIENT;
   });
   const [summary, setSummary] = useState('');
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
@@ -104,6 +206,34 @@ export default function App() {
 
   const resolveEmergency = (id: string) => {
     setEmergencies(prev => prev.filter(e => e.id !== id));
+  };
+
+  const updateMedicationStatus = (id: string, status: 'taken' | 'missed') => {
+    setPatient(prev => ({
+      ...prev,
+      medicationSchedule: prev.medicationSchedule.map(m => 
+        m.id === id ? { ...m, status } : m
+      )
+    }));
+  };
+
+  const addMedicationReminder = (reminder: any) => {
+    const newReminder = {
+      ...reminder,
+      id: Math.random().toString(36).substr(2, 9),
+      status: 'pending'
+    };
+    setPatient(prev => ({
+      ...prev,
+      medicationSchedule: [...prev.medicationSchedule, newReminder]
+    }));
+  };
+
+  const deleteMedicationReminder = (id: string) => {
+    setPatient(prev => ({
+      ...prev,
+      medicationSchedule: prev.medicationSchedule.filter(m => m.id !== id)
+    }));
   };
 
   useEffect(() => {
@@ -268,6 +398,9 @@ export default function App() {
                     patient={patient} 
                     summary={summary} 
                     onTriggerEmergency={triggerEmergency}
+                    onUpdateMedStatus={updateMedicationStatus}
+                    onAddMedReminder={addMedicationReminder}
+                    onDeleteMedReminder={deleteMedicationReminder}
                   />
                 </motion.div>
               )}
@@ -278,7 +411,7 @@ export default function App() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                 >
-                  <CaregiverDashboard patient={patient} />
+                  <DoctorDashboard patients={MOCK_PATIENTS} />
                 </motion.div>
               )}
               {activeTab === 'hospital' && (

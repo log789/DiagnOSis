@@ -26,13 +26,23 @@ export interface PatientData {
     gameHistory: { date: string; score: number; level: number }[];
   };
   emotional: {
-    mood: 'Happy' | 'Neutral' | 'Sad' | 'Anxious' | 'Calm';
+    mood: 'Happy' | 'Neutral' | 'Sad' | 'Anxious' | 'Calm' | 'Energetic';
     stressLevel: number; // 0-100
     journalEntries: { date: string; text: string; sentiment: string }[];
   };
   medications: string[];
+  medicationSchedule: MedicationReminder[];
   diagnoses: string[];
   labs: { [key: string]: string | number };
+}
+
+export interface MedicationReminder {
+  id: string;
+  name: string;
+  dosage: string;
+  time: string; // HH:mm
+  status: 'taken' | 'missed' | 'pending';
+  date: string; // YYYY-MM-DD
 }
 
 export interface SimulationResult {
