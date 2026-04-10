@@ -13,7 +13,8 @@ import {
   Stethoscope,
   Brain,
   Heart,
-  Building2
+  Building2,
+  MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Dashboard } from './components/Dashboard';
@@ -22,6 +23,7 @@ import { ChatAssistant } from './components/ChatAssistant';
 import { MemoryGame } from './components/MemoryGame';
 import { DoctorDashboard } from './components/DoctorDashboard';
 import { HospitalPanel } from './components/HospitalPanel';
+import { ConsultationHub } from './components/ConsultationHub';
 import { geminiService, PatientData } from './services/geminiService';
 
 export interface Emergency {
@@ -175,7 +177,7 @@ const MOCK_PATIENTS: PatientData[] = [
 
 const MOCK_PATIENT = MOCK_PATIENTS[0];
 
-type Tab = 'patient' | 'doctor' | 'hospital' | 'game' | 'simulation';
+type Tab = 'patient' | 'doctor' | 'hospital' | 'game' | 'simulation' | 'consultation';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('patient');
@@ -298,6 +300,12 @@ export default function App() {
             onClick={() => setActiveTab('hospital')} 
           />
           <NavItem 
+            icon={<MessageSquare className="w-5 h-5" />} 
+            label="Consultation Hub" 
+            active={activeTab === 'consultation'} 
+            onClick={() => setActiveTab('consultation')} 
+          />
+          <NavItem 
             icon={<Brain className="w-5 h-5" />} 
             label="Memory Game" 
             active={activeTab === 'game'} 
@@ -371,6 +379,7 @@ export default function App() {
                    activeTab === 'doctor' ? 'Clinical Insights' :
                    activeTab === 'hospital' ? 'Facility Operations' :
                    activeTab === 'game' ? 'Cognitive Training' :
+                   activeTab === 'consultation' ? 'Smart Consultation' :
                    'Simulation Lab'}
                 </h2>
               </div>
@@ -435,6 +444,16 @@ export default function App() {
                   exit={{ opacity: 0, x: 20 }}
                 >
                   <MemoryGame onGameComplete={handleGameComplete} history={patient.cognitive.gameHistory} />
+                </motion.div>
+              )}
+              {activeTab === 'consultation' && (
+                <motion.div
+                  key="consultation"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                >
+                  <ConsultationHub patient={patient} />
                 </motion.div>
               )}
               {activeTab === 'simulation' && (
